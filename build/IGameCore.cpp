@@ -11,9 +11,8 @@
 #include <string.h>
 #include <vector>
 
-IGameCore::IGameCore(std::string fileName) : _fileName(fileName), _loaderGame(nullptr), _loaderGraphics(nullptr)
+IGameCore::IGameCore(std::string fileName) : _fileName(fileName), _loaderGame(""), _loaderGraphics("")
 {
-
     if (!(_fileName.rfind("./", 0) == 0))
         _fileName = "./" + _fileName;
     fill_map("./lib/");
@@ -39,7 +38,6 @@ IGameCore::IGameCore(std::string fileName) : _fileName(fileName), _loaderGame(nu
         _ptr["SetNx_gm"] = &IGameCore::NextGame;
         _ptr["SetPr_gm"] = &IGameCore::PrevGame;
         _ptr["qt"] = &IGameCore::quit;
-        _ptr["mn"] = &IGameCore::loadMenu;
         run();
     }
 }
@@ -48,7 +46,9 @@ IGameCore::~IGameCore() {}
 
 void IGameCore::run()
 {
-    _loaderGraphics->load(_map_lib[this->_index_lib]);
+    while (true) {
+        _loaderGraphics.loadDotSo(_map_lib[this->_index_lib]);
+    }
 }
 
 void IGameCore::fill_map(const std::string & path)
@@ -95,30 +95,31 @@ std::string IGameCore::extractLibName(const std::string & path)
 
 void IGameCore::NextGraphic()
 {
-    // _loaderGraphics->load(this->_map_lib[this->_map_lib_name[this->_index_map + 1]]);
+    this->_index_lib += 1;
+    if (_map_lib.size() > this->_index_lib)
+        this->_index_lib = 0;
+    _loaderGraphics.loadDotSo(_map_lib[this->_index_lib]);
 }
 
 void IGameCore::PrevGraphic()
 {
-    // _loaderGraphics->load(this->_map_lib[this->_map_lib_name[this->_index_map - 1]]);
+    this->_index_lib -= 1;
+    if (_map_lib.size() < this->_index_lib)
+        this->_index_lib = _map_lib.size();
+    _loaderGraphics.loadDotSo(_map_lib[this->_index_lib]);
 }
 
 void IGameCore::NextGame()
 {
-    // _loaderGame->load(this->_map_game[this->_map_game_name[this->_index_lib + 1]]);
+    // _loaderGame.loadDotSo(this->_map_game[this->_map_game_name[this->_index_lib + 1]]);
 }
 
 void IGameCore::PrevGame()
 {
-    // _loaderGame->load(this->_map_game[this->_map_game_name[this->_index_lib - 1]]);
+    // _loaderGame.loadDotSo(this->_map_game[this->_map_game_name[this->_index_lib - 1]]);
 }
 
 void IGameCore::quit()
 {
     this->_quit = true;
-}
-
-void IGameCore::loadMenu()
-{
-
 }

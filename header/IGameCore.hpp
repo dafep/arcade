@@ -32,11 +32,10 @@ class IGameCore {
         void NextGame();
         void PrevGame();
         void quit();
-        void loadMenu();
         void run();
 
-        SoLoader<IGraphic> *_loaderGraphics;
-        SoLoader<IGame> *_loaderGame;
+        SoLoader<IGraphic> _loaderGraphics;
+        SoLoader<IGame> _loaderGame;
         IGraphic *_lgraph;
 
         std::string _fileName;

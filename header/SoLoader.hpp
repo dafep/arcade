@@ -13,62 +13,53 @@
 #ifndef SOLOADER_HPP_
 #define SOLOADER_HPP_
 
-#include <string>
-#include <dlfcn.h>
-#include <iostream>
-
 template <typename T>
 class SoLoader {
-public:
-    SoLoader(const std::string &filename)
-    {
-        if (filename == "")
-            return;
-        this->_lib = dlopen(filename.c_str(), RTLD_LAZY);
-        if (this->_lib == nullptr)
-            throw std::exception();
-        T *(*func)() = reinterpret_cast<T *(*)()>(dlsym(this->_lib, "entry"));
-        if (func == nullptr)
-            throw std::exception();
-        this->_instance = func();
-    }
+    public:
+        SoLoader &operator =(const SoLoader &) = delete;
+        std::string _fileName;
+        void *_lib = nullptr;
+        T *_instance = nullptr;
+        SoLoader(const std::string & fileName) {
+            this->_fileName = fileName;
+            this->_lib = nullptr;
+            this->_instance = nullptr;
+        }
+        ~SoLoader() {
+            if (this->_instance != nullptr)
+                delete this->_instance;
+            if (this->_lib != nullptr)
+                dlclose(this->_lib);
+        }
+        void loadDotSo(std::string &fileName) {
+            if (this->_instance != nullptr)
+                delete this->_instance;
+            if (this->_lib != nullptr)
+                dlclose(this->_lib);
+            this->_fileName = fileName;
+            if ((this->_lib = dlopen(fileName.c_str(), RTLD_LAZY)) == nullptr)
+                throw Err("Error load .so with error : " + std::string(dlerror()));
+            T *(*func)() = reinterpret_cast<T *(*)()>(dlsym(this->_lib, "entry"));
+            if (func == nullptr)
+                throw Err("Error load .so with error : Unable find 'entry'");
+            this->_instance = func();
+        }
 
-    ~SoLoader() {
-        if (this->_instance != nullptr)
-            delete this->_instance;
-        if (this->_lib != nullptr)
-            dlclose(this->_lib);
-    };
+        T *operator -> () const {
+            if (this->_instance == nullptr)
+                throw "[SoLoader] _instance is null";
+            return (this->_instance);
+        }
 
-    void load(const std::string &filename)
-    {
-        if (this->_instance != nullptr)
-            delete this->_instance;
-        if (this->_lib != nullptr)
-            dlclose(this->_lib);
-        if (filename == "")
-            return;
-        this->_lib = dlopen(filename.c_str(), RTLD_LAZY);
-        if (this->_lib == nullptr)
-            throw std::exception();
-        T *(*func)() = reinterpret_cast<T *(*)()>(dlsym(this->_lib, "entry"));
-        if (func == nullptr)
-            throw std::exception();
-        this->_instance = func();
-    }
+        T &operator *() const {
+            if (this->_instance == nullptr)
+                throw "[SoLoader] _instance is null";
+            return (*this->_instance);
+        }
 
-    T *operator ->() const {
-        if (!_instance)
-            throw std::exception();
-        return (this->_instance);
-    }
-
-    T &operator *() const {
-        return (*this->_instance);
-    }
-private:
-    void *_lib = nullptr;
-    T *_instance = nullptr;
+        std::string getPath() const {
+            return (this->_fileName);
+        }
 };
 
 #endif /* !SOLOADER_HPP_ */
