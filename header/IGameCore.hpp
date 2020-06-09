@@ -13,10 +13,14 @@
 #include "./Graphic.hpp"
 #include "./IGame.hpp"
 #include <vector>
+#include "./Menu.hpp"
+#include <chrono>
 
 #ifndef IGAMECORE_HPP_
 #define IGAMECORE_HPP_
 
+#define MENU 0
+#define GAME 1
 
 class IGameCore {
     public:
@@ -33,10 +37,20 @@ class IGameCore {
         void PrevGame();
         void quit();
         void run();
+        void loadGraphic(int index);
+        void loadGame(int index);
+        bool loop(IGame &render);
 
         SoLoader<IGraphic> _loaderGraphics;
         SoLoader<IGame> _loaderGame;
         IGraphic *_lgraph;
+        Menu _menu;
+
+        int _state = MENU;
+        bool _loop = true;
+        bool _stateLoad = false;
+        int _indexStart = 0;
+        int time = 0;
 
         std::string _fileName;
         std::string _lib;

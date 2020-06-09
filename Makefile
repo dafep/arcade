@@ -16,7 +16,8 @@ NAME	=	arcade
 
 SRC		=	main.cpp 						\
 			./build/IGameCore.cpp 			\
-			./build/Err.cpp
+			./build/Err.cpp 				\
+			./build/Menu.cpp
 
 OBJ		=	$(SRC:.cpp=.o)
 

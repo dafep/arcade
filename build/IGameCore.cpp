@@ -46,9 +46,73 @@ IGameCore::~IGameCore() {}
 
 void IGameCore::run()
 {
-    while (true) {
-        _loaderGraphics.loadDotSo(_map_lib[this->_index_lib]);
+    _menu.loadScores();
+    _menu.setLettersSize();
+    while (_loop) {
+        if (_menu.getInfoPlay()) {
+            _state = GAME;
+            _menu.setInfoPlay(false);
+        }
+        if (!_stateLoad && _state == GAME) {
+            loadGraphic(_menu.getIndexLib());
+            loadGame(_menu.getIndexGame());
+            _stateLoad = true;
+        }
+        if (_state == MENU)
+            _loop = loop(_menu);
+        else if (_state == GAME)
+            _loop = loop(*this->_loaderGame);
     }
+}
+
+bool IGameCore::loop(IGame &render) {
+    std::string event;
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+    event = _loaderGraphics->handleEvent();
+    if (event == "quit")
+        return (false);
+    if (event == "menu" && _state == GAME) {
+        _state = MENU;
+        return (true);
+    }
+    render.handleEvent(event);
+    render.handleUpdate(time + std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin).count());
+    render.handleRender(*this->_loaderGraphics);
+    time += std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin).count();
+    if (event == "next_graphic" && _state == GAME)
+        NextGraphic();
+    if (event == "prev_graphic" && _state == GAME)
+        PrevGraphic();
+    if (event == "next_game" && _state == GAME)
+        NextGame();
+    if (event == "next_game" && _state == GAME)
+        PrevGame();
+    if (_state == GAME && !_loaderGame->getGameData().empty()) {
+        if (_loaderGame->getGameData().find("go")->second == "yes") {
+            _state = MENU;
+            loadGraphic(_indexStart);
+            _menu.resetMenu();
+            _menu.setLettersSize();
+            _stateLoad = false;
+        }
+    }
+    return (true);
+}
+
+void IGameCore::loadGraphic(int index) {
+    if (index == -1 || (size_t)index > _map_lib.size())
+        return;
+    std::cout << _map_lib.at(index) << std::endl;
+    _loaderGraphics.loadDotSo(_map_lib.at(index));
+    _index_lib = index;
+}
+
+void IGameCore::loadGame(int index) {
+    if (index == -1 || (size_t)index > _map_game.size())
+        return;
+    _loaderGame.loadDotSo(_map_game.at(index));
+    _index_map = index;
 }
 
 void IGameCore::fill_map(const std::string & path)

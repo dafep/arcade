@@ -44,13 +44,11 @@ class SoLoader {
                 throw Err("Error load .so with error : Unable find 'entry'");
             this->_instance = func();
         }
-
         T *operator -> () const {
             if (this->_instance == nullptr)
                 throw "[SoLoader] _instance is null";
             return (this->_instance);
         }
-
         T &operator *() const {
             if (this->_instance == nullptr)
                 throw "[SoLoader] _instance is null";
