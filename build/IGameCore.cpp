@@ -48,6 +48,7 @@ void IGameCore::run()
 {
     _menu.loadScores();
     _menu.setLettersSize();
+    loadGraphic(_menu.getIndexLib());
     while (_loop) {
         if (_menu.getInfoPlay()) {
             _state = GAME;
@@ -101,8 +102,9 @@ bool IGameCore::loop(IGame &render) {
 }
 
 void IGameCore::loadGraphic(int index) {
-    if (index == -1 || (size_t)index > _map_lib.size())
+    if (index == -1 || (size_t)index > _map_lib.size()) {
         return;
+    }
     std::cout << _map_lib.at(index) << std::endl;
     _loaderGraphics.loadDotSo(_map_lib.at(index));
     _index_lib = index;

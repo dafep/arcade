@@ -382,6 +382,11 @@ void Menu::setLettersSize() {
     letters[2] = 64;
     letters[3] = 64;
     letters[4] = 64;
+    gamesNames.emplace_back("Pacman");
+    gamesNames.emplace_back("Snake");
+    libsNames.emplace_back("Libcaca");
+    libsNames.emplace_back("Ncurses");
+    libsNames.emplace_back("Sfml");
     GameOne.setText(gamesNames.at(0));
     GameTwo.setText(gamesNames.at(1));
     LibOne.setText(libsNames.at(0));

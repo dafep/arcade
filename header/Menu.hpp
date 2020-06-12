@@ -100,8 +100,8 @@ private:
     int cursorPosition = 0;
     int cursorLine = 0;
 
-    int indexLib = -1;
-    int indexGame = -1;
+    int indexLib = 0;
+    int indexGame = 0;
 
     bool goToGame = false;
 
